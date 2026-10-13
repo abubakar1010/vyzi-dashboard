@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { CardEmptyState, DashboardCard } from "./DashboardCard";
-import { LuBellRing, LuCopy, LuCalendar, LuShieldCheck, LuSparkles, LuTriangleAlert, LuFileWarning } from "react-icons/lu";
+import { LuBellRing, LuCopy, LuCalendar, LuShieldCheck, LuSparkles, LuTriangleAlert, LuFileWarning, LuBrainCircuit } from "react-icons/lu";
 import type { AdminDashboardData } from "../../redux/features/Dashboard/dashboardApi";
 import { getEntityRoute } from "../../lib/helpers/entityRoute";
 import { cn } from "../../utils/cn";
@@ -45,7 +45,32 @@ const alertConfig: Record<string, {
     actionKey: "dashboard.review",
     tone: "bg-orange-50 text-orange-600",
   },
+  ai_service_failure: {
+    icon: <LuBrainCircuit className="h-5 w-5" />,
+    actionKey: "dashboard.review",
+    tone: "bg-red-50 text-red-600",
+  },
 };
+
+const AI_FAILURE_REASONS = ["no_credit", "invalid_key", "model_unavailable", "rate_limited", "unavailable"];
+
+/**
+ * The backend writes alert text in English, as it does for every API message.
+ * The AI failure alert carries its reason in `relatedData`, so it is written
+ * here in the admin's language instead.
+ */
+function alertText(a: Alert, t: (key: string, options?: Record<string, unknown>) => string) {
+  if (a.alertType !== "ai_service_failure") {
+    return { title: a.title, description: a.description };
+  }
+  const data = a.relatedData ?? {};
+  const reason = AI_FAILURE_REASONS.includes(String(data.reason)) ? String(data.reason) : "unavailable";
+  const count = Number(data.failures) || 1;
+  return {
+    title: t("dashboard.ai_failure_title"),
+    description: `${t(`dashboard.ai_failure_${reason}`)} ${t("dashboard.ai_failure_count", { count })}`,
+  };
+}
 
 const defaultConfig = {
   icon: <LuTriangleAlert className="h-5 w-5" />,
@@ -82,6 +107,7 @@ export function ActiveAlertsCard({ data, className }: Props) {
           {alerts.map((a: Alert) => {
             const cfg = alertConfig[a.alertType] ?? defaultConfig;
             const route = getEntityRoute(a.entityType, a.entityId);
+            const text = alertText(a, t);
             return (
               <li
                 key={a.id}
@@ -91,9 +117,9 @@ export function ActiveAlertsCard({ data, className }: Props) {
                   {cfg.icon}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-brand">{a.title}</p>
-                  <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-slate-500">
-                    {a.description ?? t("audit.no_description")}
+                  <p className="text-sm font-semibold text-brand">{text.title}</p>
+                  <p className="mt-0.5 line-clamp-3 text-xs leading-relaxed text-slate-500">
+                    {text.description ?? t("audit.no_description")}
                   </p>
                 </div>
                 {route ? (
