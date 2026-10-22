@@ -362,7 +362,7 @@
     "codice_fiscale_label": "Codice Fiscale",
     "email_label": "Email",
     "pec": "PEC (posta certificata)",
-    "pec_invalid": "Inserisci una PEC valida (facoltativa per i clienti privati)",
+    "pec_invalid": "Inserisci un indirizzo PEC valido, ad esempio nome@pec.it",
     "email_already_exists": "Questa email è già registrata.",
     "owner_fiscal_code": "Codice Fiscale del titolare",
     "telephone": "Telefono",
