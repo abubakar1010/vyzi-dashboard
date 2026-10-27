@@ -11,7 +11,7 @@ import i18n, { currentLanguage } from "../i18n";
  * with the backend's exceptions and DTO validation messages.
  */
 
-type ParamKind = "value" | "list" | "billStatus";
+type ParamKind = "value" | "list" | "billStatus" | "activationStatus";
 
 type Rule = {
   match: string | RegExp;
@@ -128,6 +128,29 @@ const rules: Rule[] = [
   { match: "Expiry date must be after the activation date", key: "expiry_after_activation" },
   { match: /^Cannot transition from (?<from>\S+) to (?<to>\S+)$/, key: "invalid_transition", params: { from: "value", to: "value" } },
   { match: "A switch request already exists for this bill", key: "switch_request_exists" },
+
+  // Activation requests ("Attiva una nuova utenza")
+  { match: "An activation request for this supply is already open", key: "activation_request_exists" },
+  { match: "An active supply cannot be activated; request a transfer instead", key: "active_supply_not_activatable" },
+  {
+    match: /^An activation request cannot move from (?<from>\S+) to (?<to>\S+)$/,
+    key: "activation_request_invalid_transition",
+    params: { from: "activationStatus", to: "activationStatus" },
+  },
+  { match: "Assign an offer and the POD/PDR before putting the request in activation", key: "activation_request_needs_offer_and_pod" },
+  { match: "Assign an offer before putting the request in activation", key: "activation_request_needs_offer" },
+  { match: "Assign the POD/PDR before putting the request in activation", key: "activation_request_needs_pod" },
+  { match: "The offer does not cover the supply type of this request", key: "offer_supply_mismatch" },
+  { match: "energyType must be electricity or gas", key: "energy_type_invalid" },
+  { match: "supplyActive is required when a meter is installed", key: "supply_active_required" },
+  { match: "First name is required", key: "first_name_required" },
+  { match: "Last name is required", key: "last_name_required" },
+  { match: "Phone number is not valid", key: "phone_number_invalid" },
+  { match: "Street is required", key: "street_required" },
+  { match: "House number is required", key: "house_number_required" },
+  { match: "Postal code must be 5 digits", key: "zip_invalid" },
+  { match: "Province must be a 2-letter code", key: "province_code_invalid" },
+  { match: "You must accept the privacy notice to be contacted", key: "privacy_required" },
   { match: "Cannot retrieve offers for a pending email bill. Upload the document first.", key: "pending_email_offers_retrieve" },
   { match: "Cannot send offers for a pending email bill. Upload the document first.", key: "pending_email_offers_send" },
   {
@@ -333,6 +356,9 @@ const translateValue = (value: string) =>
 
 const translateParam = (value: string, kind: ParamKind | undefined) => {
   if (!kind) return value;
+  if (kind === "activationStatus") {
+    return i18n.t(`activation_requests.status.${value}`, { defaultValue: value });
+  }
   if (kind === "billStatus") {
     const status = billStatusByLabel[value] ?? value;
     return i18n.t(`case_management.status.${status}`, { defaultValue: value });

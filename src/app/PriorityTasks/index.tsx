@@ -111,9 +111,18 @@ const PriorityTasks = () => {
     setSearchParams(next ? { category: next } : {}, { replace: true });
   };
 
-  /** A task is addressed by its bill everywhere else in the admin panel. */
+  /**
+   * A task is addressed by its bill everywhere else in the admin panel. A
+   * renewal on an activation request has no bill, so it opens by its case.
+   */
+  const taskRoute = (task: PriorityTaskItem): string | null => {
+    if (task.billId) return `/case-management/${task.billId}`;
+    if (task.caseId) return `/activation-requests/${task.caseId}`;
+    return null;
+  };
   const openTask = (task: PriorityTaskItem) => {
-    if (task.billId) navigate(`/case-management/${task.billId}`);
+    const route = taskRoute(task);
+    if (route) navigate(route);
   };
 
   const columns: ColumnsType<PriorityTaskItem> = [
@@ -301,7 +310,7 @@ const PriorityTasks = () => {
             e.stopPropagation();
             openTask(record);
           }}
-          disabled={!record.billId}
+          disabled={!taskRoute(record)}
           className="flex items-center gap-1 font-medium text-sm text-rose-500 hover:text-rose-600 disabled:cursor-not-allowed disabled:text-slate-300"
         >
           <FiEye className="h-4 w-4" />
@@ -442,7 +451,7 @@ const PriorityTasks = () => {
             loading={isFetching && !isLoading}
             onRow={(record) => ({
               onClick: () => openTask(record),
-              className: record.billId ? "cursor-pointer" : "",
+              className: taskRoute(record) ? "cursor-pointer" : "",
             })}
             pagination={{
               current: meta?.page || 1,
