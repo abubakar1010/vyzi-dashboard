@@ -20,12 +20,15 @@ import {
   LuCircleHelp,
   LuBookOpen,
   LuLayoutTemplate,
+  LuPhoneCall,
 } from "react-icons/lu";
 import Settings from "../app/Settings/Settings";
 import ClientManagement from "../app/ClientManagement";
 import CaseManagement from "../app/CaseManagement";
 import BillRequestDetailView from "../app/CaseManagement/BillRequestDetailView";
 import CaseRedirect from "../app/CaseManagement/CaseRedirect";
+import ActivationRequests from "../app/ActivationRequests";
+import ActivationRequestDetail from "../app/ActivationRequests/ActivationRequestDetail";
 import MeterReading from "../app/MetterReading";
 import MeterDetails from "../app/MetterReading/MeterDetails";
 import OCRBills from "../app/OCR";
@@ -125,6 +128,19 @@ export const dashboardItems: DashboardItem[] = [
   {
     path: "case-management/:billId",
     element: <BillRequestDetailView />,
+  },
+  {
+    // "Attiva una nuova utenza" requests: cases with no bill, so they are not
+    // in Case Management, which lists bills.
+    name: "Activation Requests",
+    path: "activation-requests",
+    icon: LuPhoneCall,
+    role: [ROLE.ADMIN],
+    element: <ActivationRequests />,
+  },
+  {
+    path: "activation-requests/:caseId",
+    element: <ActivationRequestDetail />,
   },
   {
     name: "Utilities / Services",

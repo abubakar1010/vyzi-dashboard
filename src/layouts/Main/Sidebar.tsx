@@ -24,6 +24,7 @@ const sidebarI18nKeys: Record<string, string> = {
   "Dashboard": "sidebar.dashboard",
   "Client Management": "sidebar.client_management",
   "Case Management": "sidebar.case_management",
+  "Activation Requests": "sidebar.activation_requests",
   "Utilities / Services": "sidebar.utilities_services",
   "Meter Reading": "sidebar.meter_reading",
   "OCR": "sidebar.ocr",

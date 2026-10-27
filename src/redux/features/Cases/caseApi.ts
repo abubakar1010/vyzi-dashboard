@@ -110,8 +110,10 @@ export interface ICaseEvent {
 export interface ICase {
   id: string;
   userId: string;
-  billId: string;
-  selectedOfferId: string;
+  /** Null on an activation request: a supply that is not running has no bill. */
+  billId: string | null;
+  /** Null on an activation request until the operator assigns an offer. */
+  selectedOfferId: string | null;
   assignedAgentId: string | null;
   status: string;
   priority: string;
@@ -125,6 +127,19 @@ export interface ICase {
   fromSupplierId: string | null;
   toSupplierId: string | null;
   meterId: string | null;
+
+  // ── Activation request ──
+  // "Attiva una nuova utenza": no bill, so the supply type and delivery point
+  // are held on the case, with the person to call back.
+  /** `electricity` or `gas`. Set on activation requests only. */
+  energyType?: "electricity" | "gas" | null;
+  /** POD (electricity) or PDR (gas), entered by the operator after the call. */
+  podPdrNumber?: string | null;
+  contactFirstName?: string | null;
+  contactLastName?: string | null;
+  contactPhone?: string | null;
+  /** When the customer acknowledged the privacy notice and asked to be called. */
+  privacyConsentAt?: string | null;
 
   // ── Addresses ──
   // Supply, residential and shipping all carry the same five fields, so every
@@ -183,8 +198,8 @@ export interface ICase {
   updatedAt: string;
   user?: ICaseUser;
   assignedAgent?: ICaseUser | null;
-  selectedOffer?: ICaseOffer;
-  bill?: ICaseBill;
+  selectedOffer?: ICaseOffer | null;
+  bill?: ICaseBill | null;
   fromSupplier?: { id: string; name: string } | null;
   toSupplier?: { id: string; name: string } | null;
   documents?: ICaseDocument[];
@@ -201,6 +216,9 @@ export interface ICaseQuery {
   priority?: string;
   assignedAgentId?: string;
   userId?: string;
+  /** One or more case types; `new_activation,takeover` are the activation requests. */
+  caseType?: string[];
+  energyType?: string;
 }
 
 /**
@@ -233,6 +251,14 @@ export interface IUpdateCase
   expiryDate?: string | null;
   /** ISO instant. Stamped when the bill first reaches "contract sent". */
   contractSentAt?: string | null;
+
+  // ── Activation request ──
+  energyType?: "electricity" | "gas" | null;
+  /** Stored without spaces and upper-cased by the server. */
+  podPdrNumber?: string | null;
+  contactFirstName?: string | null;
+  contactLastName?: string | null;
+  contactPhone?: string | null;
 
   // ── Commercial & SLA ──
   /** What the switch is worth over a year, in euro. */
@@ -283,6 +309,8 @@ const caseApi = baseApi.injectEndpoints({
           if (params.priority) qp.set("priority", params.priority);
           if (params.assignedAgentId) qp.set("assignedAgentId", params.assignedAgentId);
           if (params.userId) qp.set("userId", params.userId);
+          if (params.caseType?.length) qp.set("caseType", params.caseType.join(","));
+          if (params.energyType) qp.set("energyType", params.energyType);
         }
         return { url: `cases?${qp.toString()}`, method: "GET" };
       },
