@@ -110,7 +110,6 @@
   "last_name_required": "Il cognome è obbligatorio",
   "phone_number_invalid": "Il numero di telefono non è valido",
   "house_number_required": "Il numero civico è obbligatorio",
-  "province_code_invalid": "La provincia deve essere una sigla di 2 lettere (es. CA)",
   "privacy_required": "Per essere ricontattato devi accettare l'informativa privacy",
   "pending_email_offers_retrieve": "Impossibile recuperare le offerte per una bolletta via email in attesa. Carica prima il documento.",
   "pending_email_offers_send": "Impossibile inviare offerte per una bolletta via email in attesa. Carica prima il documento.",

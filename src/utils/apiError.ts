@@ -149,7 +149,6 @@ const rules: Rule[] = [
   { match: "Street is required", key: "street_required" },
   { match: "House number is required", key: "house_number_required" },
   { match: "Postal code must be 5 digits", key: "zip_invalid" },
-  { match: "Province must be a 2-letter code", key: "province_code_invalid" },
   { match: "You must accept the privacy notice to be contacted", key: "privacy_required" },
   { match: "Cannot retrieve offers for a pending email bill. Upload the document first.", key: "pending_email_offers_retrieve" },
   { match: "Cannot send offers for a pending email bill. Upload the document first.", key: "pending_email_offers_send" },
