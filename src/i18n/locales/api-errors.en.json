@@ -110,7 +110,6 @@
   "last_name_required": "Last name is required",
   "phone_number_invalid": "The phone number is not valid",
   "house_number_required": "House number is required",
-  "province_code_invalid": "The province must be a 2-letter code (e.g. CA)",
   "privacy_required": "You must accept the privacy notice to be contacted",
   "pending_email_offers_retrieve": "Offers cannot be retrieved for a pending email bill. Upload the document first.",
   "pending_email_offers_send": "Offers cannot be sent for a pending email bill. Upload the document first.",

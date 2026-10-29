@@ -348,12 +348,8 @@ const ActivationRequestDetail = () => {
                 <Form.Item name="supplyCity" label={t("activation_requests.city")}>
                   <Input />
                 </Form.Item>
-                <Form.Item
-                  name="supplyProvince"
-                  label={t("activation_requests.province")}
-                  normalize={(v: string) => v?.toUpperCase()}
-                >
-                  <Input maxLength={2} />
+                <Form.Item name="supplyProvince" label={t("activation_requests.province")}>
+                  <Input maxLength={100} />
                 </Form.Item>
               </div>
             </Card>
