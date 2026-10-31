@@ -43,4 +43,4 @@ lives in the locale files under `src/i18n/locales/`.
 ## Deployment
 
 The build output in `dist/` is static and is served by Nginx. See
-`deploy/nginx/vyzi.conf` in the backend repository.
+`docs/deployment.md` in the backend repository for the release steps.
