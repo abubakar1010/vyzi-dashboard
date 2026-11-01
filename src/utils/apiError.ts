@@ -132,11 +132,10 @@ const rules: Rule[] = [
   // Activation requests ("Attiva una nuova utenza")
   { match: "An activation request for this supply is already open", key: "activation_request_exists" },
   { match: "An active supply cannot be activated; request a transfer instead", key: "active_supply_not_activatable" },
-  {
-    match: /^An activation request cannot move from (?<from>\S+) to (?<to>\S+)$/,
-    key: "activation_request_invalid_transition",
-    params: { from: "activationStatus", to: "activationStatus" },
-  },
+  { match: "Assign an offer before sending the contract", key: "activation_request_contract_needs_offer" },
+  { match: "Only an activation request can be terminated", key: "only_activation_request_terminated" },
+  { match: "Tax ID is not valid", key: "tax_id_invalid" },
+  { match: "Email is not valid", key: "email_invalid" },
   { match: "Assign an offer and the POD/PDR before putting the request in activation", key: "activation_request_needs_offer_and_pod" },
   { match: "Assign an offer before putting the request in activation", key: "activation_request_needs_offer" },
   { match: "Assign the POD/PDR before putting the request in activation", key: "activation_request_needs_pod" },
