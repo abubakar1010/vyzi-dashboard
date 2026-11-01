@@ -273,6 +273,7 @@ export default function EditCaseModal({
   const activationDate = Form.useWatch("activationDate", form) as Dayjs | null;
   const expiryDate = Form.useWatch("expiryDate", form) as Dayjs | null;
   const billType = Form.useWatch(["bill", "billType"], form) as string | undefined;
+  const formEnergyType = Form.useWatch("energyType", form) as string | undefined;
   const isDirectDebit = paymentMethod === "rid_bancario";
 
   const isPaper = invoiceDelivery === "paper";
@@ -288,16 +289,21 @@ export default function EditCaseModal({
    * select would show a blank where the current offer should be.
    */
   const offerOptions = useMemo(() => {
-    // A request is for one supply; a dual offer covers either.
-    const supply = isActivationRequestType(caseData?.caseType) ? caseData?.energyType : null;
+    // A request is for one supply; a dual offer covers either. Read off the
+    // form, so changing the supply changes the offers straight away.
+    const supply = isActivationRequestType(caseData?.caseType)
+      ? (formEnergyType ?? caseData?.energyType)
+      : null;
+    const covers = (offer: { energyType?: string | null }) =>
+      !supply || offer.energyType === supply || offer.energyType === "dual";
     const options = (offerPage?.data || [])
-      .filter((offer) => !supply || offer.energyType === supply || offer.energyType === "dual")
+      .filter(covers)
       .map((offer) => ({
         value: offer.id,
         label: offer.supplier?.name ? `${offer.name} — ${offer.supplier.name}` : offer.name,
       }));
     const current = caseData?.selectedOffer;
-    if (current && !options.some((o) => o.value === current.id)) {
+    if (current && covers(current) && !options.some((o) => o.value === current.id)) {
       options.unshift({
         value: current.id,
         label: i18n.t("audit.option_current", {
@@ -306,7 +312,7 @@ export default function EditCaseModal({
       });
     }
     return options;
-  }, [offerPage, caseData]);
+  }, [offerPage, caseData, formEnergyType]);
 
   /** Same reasoning as the offers: a supplier since retired must still show. */
   const supplierOptions = useMemo(() => {
@@ -740,6 +746,18 @@ export default function EditCaseModal({
                 <div className="grid grid-cols-2 gap-x-4">
                   <Form.Item name="energyType" label={i18n.t("service_types.utility_type")}>
                     <Select
+                      // An offer that does not cover the new supply cannot stay
+                      // picked; the operator has to choose one that does.
+                      onChange={(supply: string) => {
+                        const pickedId = form.getFieldValue("selectedOfferId");
+                        const picked = [
+                          ...(offerPage?.data || []),
+                          ...(caseData?.selectedOffer ? [caseData.selectedOffer] : []),
+                        ].find((offer) => offer.id === pickedId);
+                        if (picked?.energyType !== supply && picked?.energyType !== "dual") {
+                          form.setFieldValue("selectedOfferId", undefined);
+                        }
+                      }}
                       options={[
                         { value: "electricity", label: i18n.t("home.electricity") },
                         { value: "gas", label: i18n.t("home.gas") },
