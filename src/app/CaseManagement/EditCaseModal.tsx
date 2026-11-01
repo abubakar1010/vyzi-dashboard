@@ -33,6 +33,7 @@ import { baseApi } from "../../redux/api/baseApi";
 import { useAppDispatch } from "../../redux/hooks";
 import BillFields from "./BillFields";
 import { billInitialValues, diffBillValues } from "./billFieldValues";
+import { isActivationRequestType } from "../../constants/activationRequest";
 
 interface EditCaseModalProps {
   caseData: ICase | null;
@@ -69,6 +70,23 @@ const TEXT_KEYS = [
   "ibanHolderFirstName",
   "ibanHolderLastName",
   "ibanHolderTaxCode",
+] as const;
+
+/**
+ * What an activation request holds on the case itself: a switch reads these
+ * off its bill and its account. Only sent for an activation request, because
+ * nothing renders them on any other case and a blank would read as a clearing.
+ */
+const ACTIVATION_TEXT_KEYS = [
+  "contactFirstName",
+  "contactLastName",
+  "contactEmail",
+  "contactPhone",
+  "contactTaxCode",
+  "energyType",
+  "podPdrNumber",
+  "meterNumber",
+  "supplyContractNumber",
 ] as const;
 
 /** The fields that are picked from a fixed list. */
@@ -138,11 +156,15 @@ const CUSTOMER_REQUIRED = new Set<string>([
   "companyName",
 ]);
 
+/** A request is one or the other; it never turns into a switch. */
+const ACTIVATION_CASE_TYPE_OPTIONS = [
+  { value: "takeover", get label() { return i18n.t("audit.takeover"); } },
+  { value: "new_activation", get label() { return i18n.t("audit.new_activation"); } },
+];
+
 const CASE_TYPE_OPTIONS = [
   { value: "switch", get label() { return i18n.t("audit.switch"); } },
   { value: "transfer", get label() { return i18n.t("audit.transfer"); } },
-  { value: "takeover", get label() { return i18n.t("audit.takeover"); } },
-  { value: "new_activation", get label() { return i18n.t("audit.new_activation"); } },
 ];
 
 const PRIORITY_OPTIONS = [
@@ -249,6 +271,7 @@ export default function EditCaseModal({
   const activationDate = Form.useWatch("activationDate", form) as Dayjs | null;
   const expiryDate = Form.useWatch("expiryDate", form) as Dayjs | null;
   const billType = Form.useWatch(["bill", "billType"], form) as string | undefined;
+  const formEnergyType = Form.useWatch("energyType", form) as string | undefined;
   const isDirectDebit = paymentMethod === "rid_bancario";
 
   const isPaper = invoiceDelivery === "paper";
@@ -256,6 +279,7 @@ export default function EditCaseModal({
   // the consumption field without waiting for a save.
   const isElectricity = (billType ?? bill?.billType) === "electricity";
   const isBusiness = caseData?.user?.role === "business" || !!caseData?.user?.businessProfile;
+  const isActivationCase = isActivationRequestType(caseData?.caseType);
 
   /**
    * The offer the case is on may have been archived or deactivated since the
@@ -263,12 +287,21 @@ export default function EditCaseModal({
    * select would show a blank where the current offer should be.
    */
   const offerOptions = useMemo(() => {
-    const options = (offerPage?.data || []).map((offer) => ({
-      value: offer.id,
-      label: offer.supplier?.name ? `${offer.name} — ${offer.supplier.name}` : offer.name,
-    }));
+    // A request is for one supply; a dual offer covers either. Read off the
+    // form, so changing the supply changes the offers straight away.
+    const supply = isActivationRequestType(caseData?.caseType)
+      ? (formEnergyType ?? caseData?.energyType)
+      : null;
+    const covers = (offer: { energyType?: string | null }) =>
+      !supply || offer.energyType === supply || offer.energyType === "dual";
+    const options = (offerPage?.data || [])
+      .filter(covers)
+      .map((offer) => ({
+        value: offer.id,
+        label: offer.supplier?.name ? `${offer.name} — ${offer.supplier.name}` : offer.name,
+      }));
     const current = caseData?.selectedOffer;
-    if (current && !options.some((o) => o.value === current.id)) {
+    if (current && covers(current) && !options.some((o) => o.value === current.id)) {
       options.unshift({
         value: current.id,
         label: i18n.t("audit.option_current", {
@@ -277,7 +310,7 @@ export default function EditCaseModal({
       });
     }
     return options;
-  }, [offerPage, caseData]);
+  }, [offerPage, caseData, formEnergyType]);
 
   /** Same reasoning as the offers: a supplier since retired must still show. */
   const supplierOptions = useMemo(() => {
@@ -339,6 +372,8 @@ export default function EditCaseModal({
     return {
       ...Object.fromEntries(ADDRESS_KEYS.map((key) => [key, (record[key] as string) ?? null])),
       ...Object.fromEntries(TEXT_KEYS.map((key) => [key, (record[key] as string) ?? null])),
+      ...Object.fromEntries(ACTIVATION_TEXT_KEYS.map((key) => [key, (record[key] as string) ?? null])),
+      annualConsumption: record.annualConsumption == null ? null : Number(record.annualConsumption),
       ...Object.fromEntries(SELECT_KEYS.map((key) => [key, (record[key] as string) ?? null])),
       // Postgres hands `decimal` columns over as strings, so the figure has to
       // be coerced before it reaches an InputNumber that would otherwise treat
@@ -389,19 +424,31 @@ export default function EditCaseModal({
       changed.ibanSameAsContract = ibanSame;
     }
 
-    for (const key of [...ADDRESS_KEYS, ...TEXT_KEYS, ...SELECT_KEYS]) {
+    const textKeys: string[] = [
+      ...ADDRESS_KEYS,
+      ...TEXT_KEYS,
+      ...SELECT_KEYS,
+      ...(isActivationCase ? ACTIVATION_TEXT_KEYS : []),
+    ];
+    for (const key of textKeys) {
       // Blank means "clear this field", which the server reads as null. The
       // offer is the one field the case cannot be left without.
       let next = ((values[key] as string) ?? null) || null;
       // The server validates the tax ID before it normalises it, so a code
       // typed in the grouped form it is printed in would be refused for the
       // spaces alone. Send it as it will be stored.
-      if (key === "ibanHolderTaxCode" && next) next = normalizeTaxId(next);
+      if ((key === "ibanHolderTaxCode" || key === "contactTaxCode") && next) {
+        next = normalizeTaxId(next);
+      }
       const previous = ((initialValues as Record<string, unknown>)[key] as string) ?? null;
       if (next !== previous) changed[key] = next;
     }
 
-    for (const key of NUMBER_KEYS) {
+    const numberKeys: string[] = [
+      ...NUMBER_KEYS,
+      ...(isActivationCase ? ["annualConsumption"] : []),
+    ];
+    for (const key of numberKeys) {
       // A cleared InputNumber yields null, which is how a figure that was
       // entered against the wrong case is taken back off it.
       const raw = values[key];
@@ -472,7 +519,8 @@ export default function EditCaseModal({
       ? diffBillValues((values.bill as Record<string, unknown>) ?? {},
           (initialValues as { bill: Record<string, unknown> }).bill)
       : {};
-    const customerChanges = caseData.user
+    // An activation request names its own holder, and leaves the account alone.
+    const customerChanges = caseData.user && !isActivationCase
       ? diffCustomer((values.customer as Record<string, unknown>) ?? {})
       : {};
 
@@ -615,7 +663,10 @@ export default function EditCaseModal({
           <>
             <div className="grid grid-cols-2 gap-x-4">
               <Form.Item name="caseType" label={i18n.t("audit.case_type")}>
-                <Select options={CASE_TYPE_OPTIONS} placeholder={i18n.t("audit.select_case_type")} />
+                <Select
+                  options={isActivationCase ? ACTIVATION_CASE_TYPE_OPTIONS : CASE_TYPE_OPTIONS}
+                  placeholder={i18n.t("audit.select_case_type")}
+                />
               </Form.Item>
               <Form.Item name="priority" label={i18n.t("support_ticket.priority")}>
                 <Select options={PRIORITY_OPTIONS} placeholder={i18n.t("audit.select_priority")} />
@@ -635,8 +686,117 @@ export default function EditCaseModal({
           </>,
         )}
 
+        {/* ── Contract holder and supply, held on an activation request ── */}
+        {isActivationCase && (
+          <>
+            {section(
+              i18n.t("activation_requests.holder_section"),
+              i18n.t("activation_requests.holder_section_hint"),
+              <>
+                <div className="grid grid-cols-2 gap-x-4">
+                  <Form.Item name="contactFirstName" label={i18n.t("settings.first_name")}>
+                    <Input maxLength={100} placeholder="Mario" />
+                  </Form.Item>
+                  <Form.Item name="contactLastName" label={i18n.t("settings.last_name")}>
+                    <Input maxLength={100} placeholder="Rossi" />
+                  </Form.Item>
+                  <Form.Item
+                    name="contactEmail"
+                    label="Email"
+                    rules={[{ type: "email", message: i18n.t("audit.enter_a_valid_email_address") }]}
+                  >
+                    <Input maxLength={255} placeholder={caseData?.user?.email} />
+                  </Form.Item>
+                  <Form.Item
+                    name="contactPhone"
+                    label={i18n.t("client_management.phone")}
+                    rules={[
+                      {
+                        pattern: /^(\+39)?[\d\s.\-/()]{9,}$/,
+                        message: i18n.t("activation_requests.phone_invalid"),
+                      },
+                    ]}
+                  >
+                    <Input maxLength={20} placeholder="+393331234567" />
+                  </Form.Item>
+                </div>
+                <Form.Item
+                  name="contactTaxCode"
+                  label={i18n.t("audit.tax_code")}
+                  rules={[
+                    {
+                      // Not known yet is fine: staff can fill it in later.
+                      validator: (_, value: string) => {
+                        const problem = value ? taxIdMessage(value) : null;
+                        return problem ? Promise.reject(new Error(problem)) : Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
+                  <Input maxLength={16} placeholder={caseData?.user?.codiceFiscale ?? "RSSMRA85T10A562S"} />
+                </Form.Item>
+              </>,
+            )}
+            {section(
+              i18n.t("activation_requests.supply_section"),
+              i18n.t("activation_requests.supply_section_hint"),
+              <>
+                <div className="grid grid-cols-2 gap-x-4">
+                  <Form.Item name="energyType" label={i18n.t("service_types.utility_type")}>
+                    <Select
+                      // An offer that does not cover the new supply cannot stay
+                      // picked; the operator has to choose one that does.
+                      onChange={(supply: string) => {
+                        const pickedId = form.getFieldValue("selectedOfferId");
+                        const picked = [
+                          ...(offerPage?.data || []),
+                          ...(caseData?.selectedOffer ? [caseData.selectedOffer] : []),
+                        ].find((offer) => offer.id === pickedId);
+                        if (picked?.energyType !== supply && picked?.energyType !== "dual") {
+                          form.setFieldValue("selectedOfferId", undefined);
+                        }
+                      }}
+                      options={[
+                        { value: "electricity", label: i18n.t("home.electricity") },
+                        { value: "gas", label: i18n.t("home.gas") },
+                      ]}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name="podPdrNumber"
+                    label="POD / PDR"
+                    normalize={(v: string) => v?.replace(/\s+/g, "").toUpperCase()}
+                  >
+                    <Input className="font-mono" maxLength={30} />
+                  </Form.Item>
+                  <Form.Item name="meterNumber" label={i18n.t("audit.meter_number")}>
+                    <Input maxLength={50} />
+                  </Form.Item>
+                  <Form.Item name="supplyContractNumber" label={i18n.t("audit.contract_number")}>
+                    <Input maxLength={50} />
+                  </Form.Item>
+                  <Form.Item name="annualConsumption" label={i18n.t("audit.annual_consumption_est")}>
+                    <InputNumber className="w-full!" min={0} precision={2} />
+                  </Form.Item>
+                  <Form.Item name="fromSupplierId" label={i18n.t("audit.current_supplier")}>
+                    <Select
+                      allowClear
+                      showSearch
+                      optionFilterProp="label"
+                      options={supplierOptions}
+                      loading={suppliersLoading}
+                      notFoundContent={suppliersLoading ? <Spin size="small" /> : i18n.t("audit.no_suppliers_found")}
+                      placeholder={i18n.t("audit.not_matched_to_a_supplier_record")}
+                    />
+                  </Form.Item>
+                </div>
+              </>,
+            )}
+          </>
+        )}
+
         {/* ── Customer ── */}
-        {caseData?.user &&
+        {caseData?.user && !isActivationCase &&
           section(
             i18n.t("audit.edit_case_section_customer"),
             i18n.t("audit.edit_case_section_customer_hint"),

@@ -1,12 +1,13 @@
 import { getLocale } from "../../utils/format";
-import { Avatar, Input, Select, Spin, Empty, Table, Tag } from "antd";
+import { Avatar, Input, Segmented, Select, Spin, Empty, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FiEye, FiSearch } from "react-icons/fi";
 import { LuZap, LuFlame } from "react-icons/lu";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
+import ActivationRequests from "../ActivationRequests";
 import {
   useGetBillsAdminQuery,
   type IBill,
@@ -29,7 +30,12 @@ const CaseManagement = () => {
   const [billTypeFilter, setBillTypeFilter] = useState<string | undefined>();
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
 
-  const { data, isLoading, isFetching } = useGetBillsAdminQuery(queryParams);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const showActivations = searchParams.get("tab") === "activations";
+
+  const { data, isLoading, isFetching } = useGetBillsAdminQuery(queryParams, {
+    skip: showActivations,
+  });
 
   const bills = data?.data || [];
   const meta = data?.meta;
@@ -215,7 +221,21 @@ const CaseManagement = () => {
         </p>
       </div>
 
+      <Segmented
+        value={showActivations ? "activations" : "bills"}
+        onChange={(value) =>
+          setSearchParams(value === "activations" ? { tab: "activations" } : {}, { replace: true })
+        }
+        options={[
+          { value: "bills", label: t("activation_requests.tab_bills") },
+          { value: "activations", label: t("activation_requests.tab_activations") },
+        ]}
+      />
+
+      {showActivations && <ActivationRequests embedded />}
+
       {/* Table Card */}
+      {!showActivations && (
       <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
         {/* Search + Filters */}
         <div className="flex flex-wrap items-center gap-3 p-5">
@@ -298,6 +318,7 @@ const CaseManagement = () => {
           />
         )}
       </div>
+      )}
     </div>
   );
 };

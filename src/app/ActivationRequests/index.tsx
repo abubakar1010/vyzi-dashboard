@@ -24,13 +24,15 @@ import { getLocale } from "../../utils/format";
  * back about switching a supply on. Kept apart from Case Management, which
  * lists bills — these requests have none.
  */
-const ActivationRequests = () => {
+const ActivationRequests = ({ embedded = false }: { embedded?: boolean }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [queryParams, setQueryParams] = useState<ICaseQuery>({
     page: 1,
     limit: 20,
     caseType: [...ACTIVATION_REQUEST_CASE_TYPES],
+    // Inside "Gestione pratiche" only what somebody has picked up.
+    ...(embedded ? { excludeStatus: "new" } : {}),
   });
   const [search, setSearch] = useState("");
 
@@ -181,10 +183,12 @@ const ActivationRequests = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">{t("activation_requests.title")}</h1>
-        <p className="text-sm text-slate-500 mt-1">{t("activation_requests.description")}</p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">{t("activation_requests.title")}</h1>
+          <p className="text-sm text-slate-500 mt-1">{t("activation_requests.description")}</p>
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
         <div className="flex flex-wrap items-center gap-3 p-5">
@@ -231,7 +235,9 @@ const ActivationRequests = () => {
             style={{ height: "44px" }}
             className={`w-48 ${selectClass}`}
             onChange={(value?: string) => setFilter({ status: value })}
-            options={ACTIVATION_REQUEST_STATUSES.map((status) => ({
+            options={ACTIVATION_REQUEST_STATUSES.filter(
+              (status) => !embedded || status !== "new",
+            ).map((status) => ({
               value: status,
               label: t(`activation_requests.status.${status}`),
             }))}

@@ -493,7 +493,12 @@
       "contract_sent": "Contratto inviato",
       "awaiting_activation": "In attivazione",
       "activated": "Attivata",
-      "cancelled": "Annullata"
+      "cancelled": "Annullata",
+      "new": "Da chiamare",
+      "in_progress": "In lavorazione",
+      "documents_pending": "Documenti da ricevere",
+      "rejected": "Rifiutata (KO)",
+      "terminated": "Terminata"
     },
     "detail": {
       "case_status": "STATO PRATICA", "status": "Stato", "status_help": "Puoi impostare qualsiasi stato, anche precedente. Il cliente riceve una notifica a ogni modifica.", "case_number": "Pratica {{number}}", "amount_label": "Importo: ", "uploaded_on": "Caricata il {{date}}", "uploaded_documents": "Documenti caricati",
@@ -1125,9 +1130,9 @@
     "cancel_request": "Annulla richiesta",
     "reject_request": "Rifiuta richiesta",
     "confirm_cancelled_title": "Annullare la richiesta?",
-    "confirm_cancelled_body": "La richiesta verrà chiusa e il cliente riceverà una notifica. L'operazione non si può annullare.",
+    "confirm_cancelled_body": "La richiesta verrà chiusa e il cliente riceverà una notifica.",
     "confirm_rejected_title": "Rifiutare la richiesta?",
-    "confirm_rejected_body": "La richiesta verrà chiusa come rifiutata e il cliente riceverà una notifica. L'operazione non si può annullare.",
+    "confirm_rejected_body": "La richiesta verrà chiusa come rifiutata e il cliente riceverà una notifica.",
     "activation_hint": "Per mettere la richiesta in attivazione servono offerta, POD/PDR, data di attivazione e data di scadenza.",
     "first_name": "Nome",
     "last_name": "Cognome",
@@ -1156,6 +1161,19 @@
     "saved": "Richiesta aggiornata",
     "save_failed": "Impossibile aggiornare la richiesta",
     "status_changed": "Richiesta spostata in «{{status}}»",
+    "overview_hint": "Tutti i dati della pratica si correggono in un'unica finestra, in qualsiasi momento. Trascina le schede usando le maniglie per disporle come preferisci: l'ordine viene salvato in questo browser.",
+    "back_to_cases": "Torna alle pratiche",
+    "tab_bills": "Bollette",
+    "tab_activations": "Attivazioni e subentri",
+    "upload_contract": "Carica il contratto",
+    "holder_section": "Intestatario",
+    "holder_section_hint": "Chi firma il contratto. Può essere diverso dal titolare dell'account, che non viene modificato.",
+    "supply_section": "Fornitura",
+    "supply_section_hint": "I dati tecnici della fornitura, da completare appena sono noti.",
+    "groups": {
+      "working": "In lavorazione",
+      "closed": "Chiusa"
+    },
     "history": "Cronologia",
     "types": {
       "new_activation": "Nuova attivazione",
@@ -1164,10 +1182,13 @@
     "status": {
       "new": "Da chiamare",
       "in_progress": "In lavorazione",
+      "documents_pending": "Documenti da ricevere",
+      "contract_sent": "Contratto inviato",
+      "terminated": "Terminata",
       "awaiting_activation": "In attivazione",
       "activated": "Attivata",
       "cancelled": "Annullata",
-      "rejected": "Rifiutata"
+      "rejected": "Rifiutata (KO)"
     }
   }
 }

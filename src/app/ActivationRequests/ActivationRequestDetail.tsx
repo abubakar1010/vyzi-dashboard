@@ -4,12 +4,10 @@ import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FiArrowLeft, FiPhone } from "react-icons/fi";
 import { LuFlame, LuZap } from "react-icons/lu";
-import { useNavigate, useParams } from "react-router";
+import { Navigate, useNavigate, useParams } from "react-router";
 import CaseTimeline from "../CaseManagement/CaseTimeline";
 import {
   ACTIVATION_REQUEST_STATUS_COLOR,
-  NEXT_ACTIVATION_REQUEST_STATUS,
-  isOpenActivationRequest,
   type ActivationRequestStatus,
 } from "../../constants/activationRequest";
 import {
@@ -104,9 +102,9 @@ const Card = ({ title, children }: { title: string; children: React.ReactNode })
 );
 
 /**
- * One "Attiva una nuova utenza" request. The operator calls the customer,
- * files the offer and the delivery point, and walks the request through
- * new → in progress → in activation → activated, or cancels or rejects it.
+ * One "Attiva una nuova utenza" request, as it arrives. The operator reads what
+ * the customer left and starts working on it, which opens the full case; a
+ * request that has been picked up lands there directly.
  */
 const ActivationRequestDetail = () => {
   const { t } = useTranslation();
@@ -161,9 +159,12 @@ const ActivationRequestDetail = () => {
     );
   }
 
+  // Picked up: the full case is the page for it from now on.
+  if (request.status !== "new") {
+    return <Navigate to={`/case-management/case/${request.id}`} replace />;
+  }
+
   const status = request.status as ActivationRequestStatus;
-  const next = NEXT_ACTIVATION_REQUEST_STATUS[status];
-  const isOpen = isOpenActivationRequest(status);
 
   /** Saves the edited fields, optionally together with a status move. */
   const submit = async (nextStatus?: ActivationRequestStatus) => {
@@ -248,30 +249,20 @@ const ActivationRequestDetail = () => {
           </p>
         </div>
 
-        {isOpen && (
-          <div className="flex flex-wrap gap-2">
-            <Button danger onClick={() => confirmClose("rejected")} disabled={isSaving}>
-              {t("activation_requests.reject_request")}
-            </Button>
-            <Button onClick={() => confirmClose("cancelled")} disabled={isSaving}>
-              {t("activation_requests.cancel_request")}
-            </Button>
-            {next && (
-              <Button type="primary" loading={isSaving} onClick={() => submit(next)}>
-                {t("activation_requests.move_to", {
-                  status: t(`activation_requests.status.${next}`),
-                })}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {next === "awaiting_activation" && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          {t("activation_requests.activation_hint")}
+        <div className="flex flex-wrap gap-2">
+          <Button danger onClick={() => confirmClose("rejected")} disabled={isSaving}>
+            {t("activation_requests.reject_request")}
+          </Button>
+          <Button onClick={() => confirmClose("cancelled")} disabled={isSaving}>
+            {t("activation_requests.cancel_request")}
+          </Button>
+          <Button type="primary" loading={isSaving} onClick={() => submit("in_progress")}>
+            {t("activation_requests.move_to", {
+              status: t("activation_requests.status.in_progress"),
+            })}
+          </Button>
         </div>
-      )}
+      </div>
 
       <Form<FormValues> form={form} layout="vertical" requiredMark={false}>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

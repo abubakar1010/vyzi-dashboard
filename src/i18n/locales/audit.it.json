@@ -167,6 +167,7 @@
   "takeover": "Subentro",
   "new_activation": "Nuova attivazione",
   "direct_debit_sdd": "Addebito diretto (SDD)",
+  "digital_invoices_nothing_posted": "Fatture digitali: nessuna spedizione",
   "digital_by_email": "Digitale (via email)",
   "paper_by_post": "Cartacea (per posta)",
   "bill_data_2": "dati della bolletta",
