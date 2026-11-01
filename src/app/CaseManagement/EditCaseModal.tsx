@@ -721,8 +721,9 @@ export default function EditCaseModal({
                   label={i18n.t("audit.tax_code")}
                   rules={[
                     {
+                      // Not known yet is fine: staff can fill it in later.
                       validator: (_, value: string) => {
-                        const problem = taxIdMessage(value);
+                        const problem = value ? taxIdMessage(value) : null;
                         return problem ? Promise.reject(new Error(problem)) : Promise.resolve();
                       },
                     },
