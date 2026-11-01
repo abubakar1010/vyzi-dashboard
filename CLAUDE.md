@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-VYZI Dashboard — an energy/utility savings comparison and management platform. Features include client management, case management, meter reading, offer comparisons, supplier management, agreements, referrals, support tickets, commission tracking, and CSV reconciliation.
+VYZI Dashboard — an energy/utility savings comparison and management platform. Features include client management, case management, meter reading, offer comparisons, supplier management, agreements, referrals, support tickets, and CSV reconciliation.
 
 ## Commit Guideline
  - never use `Co-Authored-By: Claude` or something like this.
