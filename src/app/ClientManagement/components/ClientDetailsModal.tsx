@@ -78,6 +78,7 @@ const caseStatusColors: Record<string, string> = {
   activated: "green",
   rejected: "red",
   cancelled: "default",
+  terminated: "default",
 };
 
 export function ClientDetailsModal({ open, onClose, client }: ClientDetailsModalProps) {
@@ -415,7 +416,7 @@ export function ClientDetailsModal({ open, onClose, client }: ClientDetailsModal
               </Tag>
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-owngray">
-              <span>{t("client_management.case_type")}: <span className="text-brand">{c.caseType.replace(/_/g, " ")}</span></span>
+              <span>{t("client_management.case_type")}: <span className="text-brand">{t(`activation_requests.types.${c.caseType}`, { defaultValue: c.caseType.replace(/_/g, " ") })}</span></span>
               {c.toSupplier && (
                 <span>{t("client_management.case_supplier")}: <span className="text-brand">{c.toSupplier.name}</span></span>
               )}
