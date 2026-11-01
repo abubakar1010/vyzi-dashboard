@@ -138,6 +138,14 @@ export interface ICase {
   contactFirstName?: string | null;
   contactLastName?: string | null;
   contactPhone?: string | null;
+  /** The contract holder's own, when they are not the account holder. */
+  contactTaxCode?: string | null;
+  contactEmail?: string | null;
+  meterNumber?: string | null;
+  /** The supply contract's number, when the supplier has issued one. */
+  supplyContractNumber?: string | null;
+  /** Yearly usage: kWh on electricity, SMc on gas. `decimal`, so may arrive as text. */
+  annualConsumption?: number | string | null;
   /** When the customer acknowledged the privacy notice and asked to be called. */
   privacyConsentAt?: string | null;
 
@@ -213,6 +221,8 @@ export interface ICaseQuery {
   limit?: number;
   search?: string;
   status?: string;
+  /** Leaves one status out; the case list skips requests nobody has picked up. */
+  excludeStatus?: string;
   priority?: string;
   assignedAgentId?: string;
   userId?: string;
@@ -259,6 +269,11 @@ export interface IUpdateCase
   contactFirstName?: string | null;
   contactLastName?: string | null;
   contactPhone?: string | null;
+  contactTaxCode?: string | null;
+  contactEmail?: string | null;
+  meterNumber?: string | null;
+  supplyContractNumber?: string | null;
+  annualConsumption?: number | null;
 
   // ── Commercial & SLA ──
   /** What the switch is worth over a year, in euro. */

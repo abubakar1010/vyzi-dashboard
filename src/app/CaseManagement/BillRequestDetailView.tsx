@@ -119,6 +119,11 @@ const statusTagColor: Record<string, string> = {
   awaiting_activation: "processing",
   activated: "green",
   cancelled: "default",
+  new: "purple",
+  in_progress: "blue",
+  documents_pending: "orange",
+  rejected: "red",
+  terminated: "default",
 };
 
 /* ── Status dropdown configuration ───────────────────────── */
@@ -241,12 +246,15 @@ const fmtNum = (val: number | null | undefined, unit = ""): string | null =>
 function CaseStatusSelect({
   currentStatus,
   onSelect,
+  groups = statusGroups,
   loading = false,
   size = "middle",
   className = "",
 }: {
   currentStatus: string;
   onSelect: (status: string) => void;
+  /** The statuses on offer; a case with no bill has its own set. */
+  groups?: { label: string; statuses: string[] }[];
   loading?: boolean;
   size?: "small" | "middle";
   className?: string;
@@ -263,7 +271,7 @@ function CaseStatusSelect({
     ...(systemOnlyStatuses.includes(currentStatus)
       ? [{ label: i18n.t("case_management.current"), options: [buildOption(currentStatus)] }]
       : []),
-    ...statusGroups.map((group) => ({
+    ...groups.map((group) => ({
       label: i18n.t(group.label),
       options: group.statuses.map(buildOption),
     })),
@@ -2170,22 +2178,26 @@ const caseSubTabs: { key: string; label: string; counted?: boolean }[] = [
   { key: "activation", get label() { return i18n.t("case_management.steps.activation"); } },
 ];
 
-function CaseDetailsTab({
+export function CaseDetailsTab({
   caseId,
   bill,
   onStatusSelect,
   statusUpdating,
+  statusGroups: caseStatusGroups,
 }: {
   caseId: string | null;
-  /** The bill this case was opened from — the overview quotes the OCR off it. */
-  bill: IBill;
+  /**
+   * The bill this case was opened from — the overview quotes the OCR off it.
+   * Null on an activation request, whose status then lives on the case.
+   */
+  bill: IBill | null;
   onStatusSelect: (status: string) => void;
   statusUpdating: boolean;
+  statusGroups?: { label: string; statuses: string[] }[];
 }) {
   useTranslation();
   const { data: caseData, isLoading } = useGetCaseByIdQuery(caseId!, { skip: !caseId });
   const [subTab, setSubTab] = useState("case_data");
-  const billStatus = bill.status;
 
   if (!caseId) {
     return (
@@ -2211,6 +2223,7 @@ function CaseDetailsTab({
     );
   }
 
+  const billStatus = bill?.status ?? caseData.status;
   const events = [...(caseData.events || [])].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
@@ -2229,7 +2242,13 @@ function CaseDetailsTab({
       case "case_data":
         return <CaseDataSection caseData={caseData} bill={bill} customerName={customerName} />;
       case "documents":
-        return <CaseDocumentsSection documents={caseData.documents || []} caseId={caseData.id} />;
+        return (
+          <CaseDocumentsSection
+            documents={caseData.documents || []}
+            caseId={caseData.id}
+            canUploadContract={!bill}
+          />
+        );
       case "activation":
         return <CaseActivationSection caseData={caseData} billStatus={billStatus} />;
       default:
@@ -2276,6 +2295,7 @@ function CaseDetailsTab({
         <CaseStatusSelect
           currentStatus={billStatus}
           onSelect={onStatusSelect}
+          groups={caseStatusGroups}
           loading={statusUpdating}
           size="small"
         />
@@ -2762,8 +2782,11 @@ function CaseDataSection({
   customerName,
 }: {
   caseData: ICase;
-  /** The full bill the case was opened from — the case's own copy is a subset. */
-  bill: IBill;
+  /**
+   * The full bill the case was opened from — the case's own copy is a subset.
+   * An activation request has none, and holds these details on the case.
+   */
+  bill: IBill | null;
   customerName: string;
 }) {
   useTranslation();
@@ -2835,7 +2858,7 @@ function CaseDataSection({
     },
   };
 
-  const isElectricity = bill.billType === "electricity";
+  const isElectricity = (bill?.billType ?? caseData.energyType) === "electricity";
   const unit = isElectricity ? "kWh" : "Smc";
 
   const supply: CaseAddress = {
@@ -2863,7 +2886,7 @@ function CaseDataSection({
   // Cases opened before the structured address fields existed only carry the
   // OCR'd supply line on the bill — fall back to it so the row is never blank.
   const supplyLine = fmtAddress(supply);
-  const supplyDisplay = supplyLine !== "—" ? supplyLine : dash(bill.supplyAddress);
+  const supplyDisplay = supplyLine !== "—" ? supplyLine : dash(bill?.supplyAddress);
 
   // What is stored wins. The flag is only the fallback, for cases saved before
   // a block declared identical to the supply address was kept as a copy of it.
@@ -2883,7 +2906,7 @@ function CaseDataSection({
 
   // The supplier the customer is leaving is only linked to a supplier record
   // when the OCR'd name matched one, so fall back to the name off the bill.
-  const fromSupplier = dash(caseData.fromSupplier?.name || bill.supplierName);
+  const fromSupplier = dash(caseData.fromSupplier?.name || bill?.supplierName);
 
   const isDirectDebit = caseData.paymentMethod === "rid_bancario";
   const isPaper = caseData.invoiceDelivery === "paper";
@@ -2894,10 +2917,11 @@ function CaseDataSection({
   // The customer's own tax ID, which is what the holder columns held implicitly
   // on cases filed before the app sent them for its own customer.
   const customerTaxId =
+    caseData.contactTaxCode ||
     caseData.user?.codiceFiscale ||
     caseData.user?.businessProfile?.partitaIva ||
-    bill.codiceFiscale ||
-    bill.partitaIva;
+    bill?.codiceFiscale ||
+    bill?.partitaIva;
   const legacyHolderTaxCode = ibanHolder ? null : customerTaxId;
 
   const offer = caseData.selectedOffer;
@@ -2911,7 +2935,7 @@ function CaseDataSection({
         : offer?.pricePerSmc;
 
   const documents = caseData.documents || [];
-  const billFiles: IBillFile[] = bill.files ?? [];
+  const billFiles: IBillFile[] = bill?.files ?? [];
 
   const files: OverviewFile[] = [
     ...billFiles.map((bf) => ({
@@ -2919,7 +2943,7 @@ function CaseDataSection({
       group: bf.verificationId ? "Re-uploaded Bill" : "Uploaded Bill",
       name: bf.originalName || bf.fileUrl.split("/").pop() || "bill",
       uploadedAt: bf.createdAt,
-      url: `${server_url}bills/${bill.id}/files/${bf.id}`,
+      url: `${server_url}bills/${bill?.id}/files/${bf.id}`,
     })),
     ...documents.map((doc) => ({
       id: `doc-${doc.id}`,
@@ -2951,28 +2975,36 @@ function CaseDataSection({
       key: "customer",
       title: i18n.t("audit.customer_data"),
       rows: [
-        { label: i18n.t("settings.first_name"), value: dash(caseData.user?.firstName) },
-        { label: i18n.t("settings.last_name"), value: dash(caseData.user?.lastName) },
+        // An activation request names its own holder, who may not own the
+        // account; everywhere else these fall through to the account.
+        {
+          label: i18n.t("settings.first_name"),
+          value: dash(caseData.contactFirstName || caseData.user?.firstName),
+        },
+        {
+          label: i18n.t("settings.last_name"),
+          value: dash(caseData.contactLastName || caseData.user?.lastName),
+        },
         {
           // On a business account this is the person signing for the company,
           // not the company — whose number is the VAT row below.
           label: isBusinessCase ? i18n.t("audit.tax_code_signatory") : i18n.t("audit.tax_code"),
-          value: dash(caseData.user?.codiceFiscale || bill.codiceFiscale),
+          value: dash(caseData.contactTaxCode || caseData.user?.codiceFiscale || bill?.codiceFiscale),
         },
         // The account's own VAT number where there is one; the bill's OCR'd
         // value is the fallback, since a business account holds it on its
         // profile rather than on the user row. Absent entirely for a private
         // customer, who has no VAT number to be missing.
-        ...(caseData.user?.businessProfile?.partitaIva || bill.partitaIva
+        ...(caseData.user?.businessProfile?.partitaIva || bill?.partitaIva
           ? [
               {
                 label: i18n.t("audit.vat_number"),
-                value: (caseData.user?.businessProfile?.partitaIva || bill.partitaIva) as string,
+                value: (caseData.user?.businessProfile?.partitaIva || bill?.partitaIva) as string,
               },
             ]
           : []),
         // The address the account signs in with.
-        { label: "Email", value: dash(caseData.user?.email) },
+        { label: "Email", value: dash(caseData.contactEmail || caseData.user?.email) },
         // And the one the company is reached at legally, which is a different
         // address: the mailbox that registered a company account is very often
         // somebody's personal one, and an invoice does not belong there.
@@ -2984,7 +3016,10 @@ function CaseDataSection({
               },
             ]
           : []),
-        { label: i18n.t("client_management.phone"), value: dash(caseData.user?.phone) },
+        {
+          label: i18n.t("client_management.phone"),
+          value: dash(caseData.contactPhone || caseData.user?.phone),
+        },
       ],
     },
     {
@@ -3032,13 +3067,29 @@ function CaseDataSection({
             </Tag>
           ),
         },
-        { label: "POD / PDR", value: dash(bill.podNumber || bill.pdrNumber) },
+        {
+          label: "POD / PDR",
+          value: dash(bill ? bill.podNumber || bill.pdrNumber : caseData.podPdrNumber),
+        },
         { label: i18n.t("audit.current_supplier"), value: fromSupplier },
-        { label: i18n.t("audit.meter_number"), value: dash(bill.meterNumber) },
-        { label: i18n.t("audit.contract_number"), value: dash(bill.contractNumber) },
+        {
+          label: i18n.t("audit.meter_number"),
+          value: dash(bill ? bill.meterNumber : caseData.meterNumber),
+        },
+        {
+          label: i18n.t("audit.contract_number"),
+          value: dash(bill ? bill.contractNumber : caseData.supplyContractNumber),
+        },
         {
           label: i18n.t("audit.annual_consumption_est"),
-          value: formatQuantity(annualConsumption(bill), unit),
+          value: formatQuantity(
+            bill
+              ? annualConsumption(bill)
+              : caseData.annualConsumption == null
+                ? null
+                : Number(caseData.annualConsumption),
+            unit,
+          ),
         },
       ],
     },
@@ -3110,8 +3161,8 @@ function CaseDataSection({
           : []),
       ],
     },
-    {
-      key: "bill_ocr",
+    ...(bill ? [{
+      key: "bill_ocr" as const,
       title: i18n.t("audit.bill_data_ocr"),
       rows: [
         {
@@ -3169,7 +3220,7 @@ function CaseDataSection({
             ),
         },
       ],
-    },
+    }] : []),
     {
       key: "offer",
       title: i18n.t("audit.offer_contract"),
@@ -3245,6 +3296,21 @@ function CaseDataSection({
         { label: i18n.t("audit.expiry_date_2"), value: fmtDateIt(caseData.expiryDate) },
         { label: i18n.t("audit.created_at"), value: fmtDateIt(caseData.createdAt) },
         { label: i18n.t("service_types.last_updated"), value: fmtDateIt(caseData.updatedAt) },
+        // A bill-based case keeps its notes on the bill's own tab.
+        ...(bill
+          ? []
+          : [
+              {
+                label: i18n.t("activation_requests.notes"),
+                value: dash(caseData.notes),
+                stacked: true,
+              },
+              {
+                label: i18n.t("activation_requests.internal_notes"),
+                value: dash(caseData.internalNotes),
+                stacked: true,
+              },
+            ]),
       ],
     },
   ];
@@ -3335,7 +3401,16 @@ const REJECTION_REASONS: DocumentRejectionReason[] = [
   "other",
 ];
 
-function CaseDocumentsSection({ documents, caseId }: { documents: ICaseDocument[]; caseId: string }) {
+function CaseDocumentsSection({
+  documents,
+  caseId,
+  canUploadContract = false,
+}: {
+  documents: ICaseDocument[];
+  caseId: string;
+  /** An activation request's contract is filed here for the customer to see. */
+  canUploadContract?: boolean;
+}) {
   useTranslation();
   const token = useAppSelector((state) => state.auth.token);
   const [verifyDocument] = useVerifyDocumentMutation();
@@ -3438,7 +3513,10 @@ function CaseDocumentsSection({ documents, caseId }: { documents: ICaseDocument[
     }
   };
 
-  const handleMultiUpload = async (fileList: File[]) => {
+  const handleMultiUpload = async (
+    fileList: File[],
+    documentType: "identity_document" | "contract" = "identity_document",
+  ) => {
     setUploading(true);
     let successCount = 0;
     // The last reason a file was refused (too large, wrong type...), so a
@@ -3458,7 +3536,7 @@ function CaseDocumentsSection({ documents, caseId }: { documents: ICaseDocument[
         if (res.ok && url) {
           await uploadCaseDocument({
             caseId,
-            documentType: "identity_document",
+            documentType,
             fileUrl: url,
             fileName: file.name,
           }).unwrap();
@@ -3661,6 +3739,25 @@ function CaseDocumentsSection({ documents, caseId }: { documents: ICaseDocument[
                   {i18n.t("audit.upload_identity_documents")}
                 </Button>
               </Upload>
+              {canUploadContract && (
+                <Upload
+                  accept=".pdf,.png,.jpg,.jpeg,.webp"
+                  multiple
+                  showUploadList={false}
+                  beforeUpload={(_file, fileList) => {
+                    handleMultiUpload(fileList as unknown as File[], "contract");
+                    return false;
+                  }}
+                >
+                  <Button
+                    icon={<LuUpload className="h-4 w-4" />}
+                    loading={uploading}
+                    className="h-8 rounded-lg text-xs!"
+                  >
+                    {i18n.t("activation_requests.upload_contract")}
+                  </Button>
+                </Upload>
+              )}
               <span className="text-xs text-slate-400">{i18n.t("audit.pdf_jpg_png_webp_select_multiple_files")}</span>
             </div>
           </div>

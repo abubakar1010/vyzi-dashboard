@@ -2,10 +2,11 @@ import { Spin } from "antd";
 import { Navigate, useParams } from "react-router";
 import { useGetCaseByIdQuery } from "../../redux/features/Cases/caseApi";
 import { isActivationRequestType } from "../../constants/activationRequest";
+import ActivationCaseView from "./ActivationCaseView";
 
 /**
- * `/case-management/case/:caseId` → `/case-management/:billId`, or to
- * `/activation-requests/:caseId` for an activation request, which has no bill.
+ * `/case-management/case/:caseId` → `/case-management/:billId`, or the full case
+ * right here for an activation request, which has no bill to be keyed by.
  *
  * The case detail view is keyed by bill, but notifications and activity logs
  * about documents or status changes only carry the caseId. Resolve it here
@@ -19,9 +20,8 @@ const CaseRedirect = () => {
     return <Navigate to="/case-management" replace />;
   }
 
-  // An activation request has no bill; it has a page of its own.
   if (data && isActivationRequestType(data.caseType)) {
-    return <Navigate to={`/activation-requests/${data.id}`} replace />;
+    return <ActivationCaseView caseData={data} />;
   }
 
   if (!isLoading && !data?.billId) {

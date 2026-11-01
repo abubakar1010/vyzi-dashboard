@@ -493,7 +493,12 @@
       "contract_sent": "Contract Sent",
       "awaiting_activation": "In Activation",
       "activated": "Activated",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "new": "To call",
+      "in_progress": "In progress",
+      "documents_pending": "Documents to receive",
+      "rejected": "Rejected (KO)",
+      "terminated": "Terminated"
     },
     "detail": {
       "case_status": "CASE STATUS", "status": "Status", "status_help": "Pick any status — forward or backward. The customer is notified of every change.", "case_number": "Case {{number}}", "amount_label": "Amount: ", "uploaded_on": "Uploaded {{date}}", "uploaded_documents": "Uploaded documents",
@@ -1125,9 +1130,9 @@
     "cancel_request": "Cancel request",
     "reject_request": "Reject request",
     "confirm_cancelled_title": "Cancel this request?",
-    "confirm_cancelled_body": "The request will be closed and the customer notified. This cannot be undone.",
+    "confirm_cancelled_body": "The request will be closed and the customer notified.",
     "confirm_rejected_title": "Reject this request?",
-    "confirm_rejected_body": "The request will be closed as rejected and the customer notified. This cannot be undone.",
+    "confirm_rejected_body": "The request will be closed as rejected and the customer notified.",
     "activation_hint": "To put the request in activation you need the offer, the POD/PDR, the activation date and the expiry date.",
     "first_name": "First name",
     "last_name": "Last name",
@@ -1156,6 +1161,18 @@
     "saved": "Request updated",
     "save_failed": "Could not update the request",
     "status_changed": "Request moved to \"{{status}}\"",
+    "back_to_cases": "Back to cases",
+    "tab_bills": "Bills",
+    "tab_activations": "Activations and takeovers",
+    "upload_contract": "Upload the contract",
+    "holder_section": "Contract holder",
+    "holder_section_hint": "Who signs the contract. This can differ from the account holder, whose account is not changed.",
+    "supply_section": "Supply",
+    "supply_section_hint": "The supply's technical details, to complete as soon as they are known.",
+    "groups": {
+      "working": "In progress",
+      "closed": "Closed"
+    },
     "history": "History",
     "types": {
       "new_activation": "New connection",
@@ -1164,6 +1181,9 @@
     "status": {
       "new": "To call",
       "in_progress": "In progress",
+      "documents_pending": "Documents to receive",
+      "contract_sent": "Contract sent",
+      "terminated": "Terminated",
       "awaiting_activation": "In activation",
       "activated": "Activated",
       "cancelled": "Cancelled",
