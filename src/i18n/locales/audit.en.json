@@ -167,6 +167,7 @@
   "takeover": "Takeover",
   "new_activation": "New activation",
   "direct_debit_sdd": "Direct debit (SDD)",
+  "digital_invoices_nothing_posted": "Digital invoices: nothing is posted",
   "digital_by_email": "Digital (by email)",
   "paper_by_post": "Paper (by post)",
   "bill_data_2": "bill data",

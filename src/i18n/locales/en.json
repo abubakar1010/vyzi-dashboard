@@ -1161,6 +1161,7 @@
     "saved": "Request updated",
     "save_failed": "Could not update the request",
     "status_changed": "Request moved to \"{{status}}\"",
+    "overview_hint": "Every detail of the case is corrected in one window, at any time. Drag the cards by their handles to arrange them: the order is saved in this browser.",
     "back_to_cases": "Back to cases",
     "tab_bills": "Bills",
     "tab_activations": "Activations and takeovers",

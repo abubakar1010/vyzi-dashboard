@@ -3045,7 +3045,7 @@ function CaseDataSection({
             label={i18n.t("audit.billing_shipping_address")}
             // Only paper invoices are posted anywhere, so for a digital case
             // there is no shipping address to be missing.
-            value={isPaper ? shippingDisplay : "Digital invoices — nothing is posted"}
+            value={isPaper ? shippingDisplay : i18n.t("audit.digital_invoices_nothing_posted")}
             note={isPaper && caseData.shippingSameAsSupply ? i18n.t("audit.same_as_supply_address") : undefined}
           />
         </div>
@@ -3287,7 +3287,12 @@ function CaseDataSection({
           ),
           cap: true,
         },
-        { label: i18n.t("support_ticket.priority"), value: dash(caseData.priority), cap: true },
+        {
+          label: i18n.t("support_ticket.priority"),
+          value: caseData.priority
+            ? i18n.t(`client_management.priority_${caseData.priority}`, { defaultValue: caseData.priority })
+            : "—",
+        },
         {
           label: i18n.t("support_ticket.assigned_agent"),
           // Named rather than dashed when nobody holds it: an unassigned case
@@ -3295,7 +3300,7 @@ function CaseDataSection({
           value: caseData.assignedAgent
             ? `${caseData.assignedAgent.firstName} ${caseData.assignedAgent.lastName}`.trim() ||
               caseData.assignedAgent.email
-            : "Unassigned",
+            : i18n.t("support_ticket.unassigned"),
         },
         { label: i18n.t("audit.sla_deadline"), value: fmtDateIt(caseData.slaDeadline) },
         {
@@ -3341,7 +3346,7 @@ function CaseDataSection({
         <div>
           <h3 className="text-sm font-bold text-slate-800">{i18n.t("audit.case_overview")}</h3>
           <p className="mt-0.5 text-xs text-slate-400">
-            {i18n.t("audit.everything_the_switch_is_filed_against_and_every_field_of_it_is_corrected_in_one_modal_the_supply_point_read_off_the_bill_and_the_customer_s_own_record_included_saved_back_to_the_bill_and_the_account_behind_the_scenes_only_the_offer_s_tariff_terms_are_read_only_they_belong_to_the_offer_and_editing_a_copy_of_them_here_would_let_the_two_drift_apart_drag_a_card_by_its_handle_to_put_it_where_you_want_it_the_arrangement_is_remembered_on_this_browser")}
+            {bill ? i18n.t("audit.everything_the_switch_is_filed_against_and_every_field_of_it_is_corrected_in_one_modal_the_supply_point_read_off_the_bill_and_the_customer_s_own_record_included_saved_back_to_the_bill_and_the_account_behind_the_scenes_only_the_offer_s_tariff_terms_are_read_only_they_belong_to_the_offer_and_editing_a_copy_of_them_here_would_let_the_two_drift_apart_drag_a_card_by_its_handle_to_put_it_where_you_want_it_the_arrangement_is_remembered_on_this_browser") : i18n.t("activation_requests.overview_hint")}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">

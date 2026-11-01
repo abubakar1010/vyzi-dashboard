@@ -1161,6 +1161,7 @@
     "saved": "Richiesta aggiornata",
     "save_failed": "Impossibile aggiornare la richiesta",
     "status_changed": "Richiesta spostata in «{{status}}»",
+    "overview_hint": "Tutti i dati della pratica si correggono in un'unica finestra, in qualsiasi momento. Trascina le schede usando le maniglie per disporle come preferisci: l'ordine viene salvato in questo browser.",
     "back_to_cases": "Torna alle pratiche",
     "tab_bills": "Bollette",
     "tab_activations": "Attivazioni e subentri",
