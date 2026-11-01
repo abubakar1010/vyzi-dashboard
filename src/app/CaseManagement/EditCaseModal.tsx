@@ -165,8 +165,6 @@ const ACTIVATION_CASE_TYPE_OPTIONS = [
 const CASE_TYPE_OPTIONS = [
   { value: "switch", get label() { return i18n.t("audit.switch"); } },
   { value: "transfer", get label() { return i18n.t("audit.transfer"); } },
-  { value: "takeover", get label() { return i18n.t("audit.takeover"); } },
-  { value: "new_activation", get label() { return i18n.t("audit.new_activation"); } },
 ];
 
 const PRIORITY_OPTIONS = [

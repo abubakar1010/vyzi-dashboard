@@ -102,6 +102,7 @@
   "activation_request_contract_needs_offer": "Assign an offer before sending the contract",
   "only_activation_request_terminated": "Only an activation request can be terminated",
   "only_active_supply_terminated": "Only an active supply can be terminated",
+  "case_kind_fixed": "A case cannot move between a switch and an activation request",
   "activation_request_needs_offer_and_pod": "Assign an offer and the POD/PDR before putting the request in activation",
   "activation_request_needs_offer": "Assign an offer before putting the request in activation",
   "activation_request_needs_pod": "Enter the POD/PDR before putting the request in activation",

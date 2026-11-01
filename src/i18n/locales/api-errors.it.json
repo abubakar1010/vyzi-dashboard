@@ -102,6 +102,7 @@
   "activation_request_contract_needs_offer": "Assegna un'offerta prima di inviare il contratto",
   "only_activation_request_terminated": "Solo una richiesta di attivazione può essere terminata",
   "only_active_supply_terminated": "Solo una fornitura attiva può essere terminata",
+  "case_kind_fixed": "Una pratica non può passare da cambio fornitore a richiesta di attivazione, o viceversa",
   "activation_request_needs_offer_and_pod": "Assegna un'offerta e il POD/PDR prima di mettere la richiesta in attivazione",
   "activation_request_needs_offer": "Assegna un'offerta prima di mettere la richiesta in attivazione",
   "activation_request_needs_pod": "Inserisci il POD/PDR prima di mettere la richiesta in attivazione",
