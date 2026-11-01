@@ -2272,7 +2272,9 @@ export function CaseDetailsTab({
             {localizedStatus(billStatus)}
           </Tag>
           <Tag className="m-0! rounded-md! border-0! bg-orange-50! px-2.5! py-0.5! text-xs! font-semibold! text-orange-600! capitalize!">
-            {caseData.caseType?.replace("_", " ")}
+            {i18n.t(`activation_requests.types.${caseData.caseType}`, {
+              defaultValue: caseData.caseType?.replace("_", " "),
+            })}
           </Tag>
           {caseData.slaDeadline && (
             (() => {
@@ -3276,7 +3278,15 @@ function CaseDataSection({
       title: i18n.t("audit.case_handling"),
       rows: [
         { label: i18n.t("audit.case_number"), value: dash(caseData.caseNumber) },
-        { label: i18n.t("audit.case_type"), value: dash(caseData.caseType?.replace("_", " ")), cap: true },
+        {
+          label: i18n.t("audit.case_type"),
+          value: dash(
+            i18n.t(`activation_requests.types.${caseData.caseType}`, {
+              defaultValue: caseData.caseType?.replace("_", " "),
+            }),
+          ),
+          cap: true,
+        },
         { label: i18n.t("support_ticket.priority"), value: dash(caseData.priority), cap: true },
         {
           label: i18n.t("support_ticket.assigned_agent"),
