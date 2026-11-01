@@ -11,7 +11,7 @@ import i18n, { currentLanguage } from "../i18n";
  * with the backend's exceptions and DTO validation messages.
  */
 
-type ParamKind = "value" | "list" | "billStatus" | "activationStatus";
+type ParamKind = "value" | "list" | "billStatus";
 
 type Rule = {
   match: string | RegExp;
@@ -354,9 +354,6 @@ const translateValue = (value: string) =>
 
 const translateParam = (value: string, kind: ParamKind | undefined) => {
   if (!kind) return value;
-  if (kind === "activationStatus") {
-    return i18n.t(`activation_requests.status.${value}`, { defaultValue: value });
-  }
   if (kind === "billStatus") {
     const status = billStatusByLabel[value] ?? value;
     return i18n.t(`case_management.status.${status}`, { defaultValue: value });
