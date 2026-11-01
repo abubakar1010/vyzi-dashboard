@@ -134,6 +134,7 @@ const rules: Rule[] = [
   { match: "An active supply cannot be activated; request a transfer instead", key: "active_supply_not_activatable" },
   { match: "Assign an offer before sending the contract", key: "activation_request_contract_needs_offer" },
   { match: "Only an activation request can be terminated", key: "only_activation_request_terminated" },
+  { match: "Only an active supply can be terminated", key: "only_active_supply_terminated" },
   { match: "Tax ID is not valid", key: "tax_id_invalid" },
   { match: "Email is not valid", key: "email_invalid" },
   { match: "Assign an offer and the POD/PDR before putting the request in activation", key: "activation_request_needs_offer_and_pod" },

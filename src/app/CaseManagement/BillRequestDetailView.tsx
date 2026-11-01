@@ -262,8 +262,11 @@ function CaseStatusSelect({
   const buildOption = (status: string) => ({
     value: status,
     label: localizedStatus(status),
-    // The case is already here — nothing to change.
-    disabled: status === currentStatus,
+    // The case is already here — nothing to change. Only a supply that ran can
+    // end; a request that never did is cancelled instead.
+    disabled:
+      status === currentStatus ||
+      (status === "terminated" && currentStatus !== "activated"),
   });
 
   const options = [
@@ -3572,6 +3575,14 @@ function CaseDocumentsSection({
     }
   };
 
+  // Ant Design calls beforeUpload once per file, each time with the whole
+  // selection, so only the first call may send it.
+  const uploadSelection =
+    (documentType?: "contract") => (file: File, selection: File[]) => {
+      if (file === selection[0]) handleMultiUpload(selection, documentType);
+      return false;
+    };
+
   const isPdf = (doc: ICaseDocument) => doc.mimeType === "application/pdf" || doc.fileName.endsWith(".pdf");
   const isImage = (doc: ICaseDocument) => doc.mimeType?.startsWith("image/") || /\.(jpg|jpeg|png)$/i.test(doc.fileName);
 
@@ -3741,10 +3752,7 @@ function CaseDocumentsSection({
                 accept=".pdf,.png,.jpg,.jpeg,.webp"
                 multiple
                 showUploadList={false}
-                beforeUpload={(_file, fileList) => {
-                  handleMultiUpload(fileList as unknown as File[]);
-                  return false;
-                }}
+                beforeUpload={uploadSelection()}
               >
                 <Button
                   icon={<LuUpload className="h-4 w-4" />}
@@ -3759,10 +3767,7 @@ function CaseDocumentsSection({
                   accept=".pdf,.png,.jpg,.jpeg,.webp"
                   multiple
                   showUploadList={false}
-                  beforeUpload={(_file, fileList) => {
-                    handleMultiUpload(fileList as unknown as File[], "contract");
-                    return false;
-                  }}
+                  beforeUpload={uploadSelection("contract")}
                 >
                   <Button
                     icon={<LuUpload className="h-4 w-4" />}
