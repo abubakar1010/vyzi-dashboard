@@ -321,6 +321,7 @@ const caseApi = baseApi.injectEndpoints({
           if (params.limit) qp.set("limit", String(params.limit));
           if (params.search) qp.set("search", params.search);
           if (params.status) qp.set("status", params.status);
+          if (params.excludeStatus) qp.set("excludeStatus", params.excludeStatus);
           if (params.priority) qp.set("priority", params.priority);
           if (params.assignedAgentId) qp.set("assignedAgentId", params.assignedAgentId);
           if (params.userId) qp.set("userId", params.userId);
