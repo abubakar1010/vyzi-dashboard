@@ -64,6 +64,8 @@
   "referral_code_generation_failed": "Impossibile generare un codice invito univoco. Riprova.",
   "invalid_referral_code": "Codice invito non valido",
   "own_referral_code": "Non puoi usare il tuo stesso codice invito",
+  "invite_self": "Non puoi invitare te stesso",
+  "invite_daily_limit": "Hai raggiunto il limite giornaliero di inviti. Riprova domani.",
   "social_email_required": "L'email è obbligatoria: assicurati che l'account social abbia un'email verificata.",
   "social_verification_failed": "Verifica dell'accesso non riuscita. Riprova.",
   "social_account_missing": "Nessun account registrato per questo profilo social. Registrati prima.",

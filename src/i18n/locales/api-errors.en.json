@@ -64,6 +64,8 @@
   "referral_code_generation_failed": "Could not generate a unique referral code. Please try again.",
   "invalid_referral_code": "Invalid referral code",
   "own_referral_code": "You cannot use your own referral code",
+  "invite_self": "You cannot invite yourself",
+  "invite_daily_limit": "Daily invite limit reached. Please try again tomorrow.",
   "social_email_required": "An email is required: make sure the social account has a verified email.",
   "social_verification_failed": "Sign-in verification failed. Please try again.",
   "social_account_missing": "No account is registered for this social profile. Please sign up first.",

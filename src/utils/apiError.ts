@@ -88,6 +88,8 @@ const rules: Rule[] = [
   { match: "Failed to generate unique referral code. Please try again.", key: "referral_code_generation_failed" },
   { match: "Invalid referral code", key: "invalid_referral_code" },
   { match: "Cannot use your own referral code", key: "own_referral_code" },
+  { match: "You cannot invite yourself", key: "invite_self" },
+  { match: "Daily invite limit reached. Please try again tomorrow.", key: "invite_daily_limit" },
   { match: /^Email is required\. Please ensure your social account/, key: "social_email_required" },
   { match: "Firebase token verification failed. Please try again.", key: "social_verification_failed" },
   { match: "No account is registered for this social profile. Please sign up first.", key: "social_account_missing" },
