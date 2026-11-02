@@ -16,8 +16,7 @@ export type ActivationRequestStatus =
   | "awaiting_activation"
   | "activated"
   | "rejected"
-  | "cancelled"
-  | "terminated";
+  | "cancelled";
 
 export const ACTIVATION_REQUEST_STATUSES: ActivationRequestStatus[] = [
   "new",
@@ -28,7 +27,6 @@ export const ACTIVATION_REQUEST_STATUSES: ActivationRequestStatus[] = [
   "activated",
   "rejected",
   "cancelled",
-  "terminated",
 ];
 
 /** The status dropdown on the full case. */
@@ -36,7 +34,7 @@ export const ACTIVATION_STATUS_GROUPS: { label: string; statuses: ActivationRequ
   { label: "activation_requests.groups.working", statuses: ["new", "in_progress", "documents_pending"] },
   { label: "case_management.steps.contract", statuses: ["contract_sent"] },
   { label: "case_management.steps.activation", statuses: ["awaiting_activation", "activated"] },
-  { label: "activation_requests.groups.closed", statuses: ["rejected", "cancelled", "terminated"] },
+  { label: "activation_requests.groups.closed", statuses: ["rejected", "cancelled"] },
 ];
 
 /** The steps a case passes through. KO and the other stops are not among them. */
@@ -67,5 +65,4 @@ export const ACTIVATION_REQUEST_STATUS_COLOR: Record<ActivationRequestStatus, st
   activated: "green",
   rejected: "red",
   cancelled: "default",
-  terminated: "default",
 };

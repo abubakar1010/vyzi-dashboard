@@ -497,8 +497,7 @@
       "new": "Da chiamare",
       "in_progress": "In lavorazione",
       "documents_pending": "Documenti da ricevere",
-      "rejected": "Rifiutata (KO)",
-      "terminated": "Terminata"
+      "rejected": "Rifiutata (KO)"
     },
     "detail": {
       "case_status": "STATO PRATICA", "status": "Stato", "status_help": "Puoi impostare qualsiasi stato, anche precedente. Il cliente riceve una notifica a ogni modifica.", "case_number": "Pratica {{number}}", "amount_label": "Importo: ", "uploaded_on": "Caricata il {{date}}", "uploaded_documents": "Documenti caricati",
@@ -1184,7 +1183,6 @@
       "in_progress": "In lavorazione",
       "documents_pending": "Documenti da ricevere",
       "contract_sent": "Contratto inviato",
-      "terminated": "Terminata",
       "awaiting_activation": "In attivazione",
       "activated": "Attivata",
       "cancelled": "Annullata",

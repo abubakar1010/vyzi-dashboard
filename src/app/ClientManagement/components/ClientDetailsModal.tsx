@@ -78,7 +78,6 @@ const caseStatusColors: Record<string, string> = {
   activated: "green",
   rejected: "red",
   cancelled: "default",
-  terminated: "default",
 };
 
 export function ClientDetailsModal({ open, onClose, client }: ClientDetailsModalProps) {
