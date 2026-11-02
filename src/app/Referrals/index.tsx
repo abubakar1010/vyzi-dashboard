@@ -42,12 +42,12 @@ const Referrals = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
-  const [defaultReward, setDefaultReward] = useState(10);
 
   // Reward modal state
   const [rewardModalOpen, setRewardModalOpen] = useState(false);
   const [selectedReferral, setSelectedReferral] = useState<IReferral | null>(null);
   const [rewardAmount, setRewardAmount] = useState(10);
+  const [friendRewardAmount, setFriendRewardAmount] = useState(10);
 
   const { data: stats, isLoading: isStatsLoading, isError: isStatsError } = useGetReferralStatsQuery();
   const { data, isLoading } = useGetReferralsQuery({
@@ -60,6 +60,8 @@ const Referrals = () => {
 
   const referrals = data?.data || [];
   const meta = data?.meta;
+  // The amounts the app promises; set on the server, pre-filled when paying.
+  const rewardDefaults = stats?.rewardDefaults ?? { referrerAmount: 10, friendAmount: 10 };
 
   const handleSearch = debounce((value: string) => {
     setSearch(value);
@@ -77,7 +79,7 @@ const Referrals = () => {
 
   const handleExportCSV = () => {
     if (!referrals.length) return;
-    const headers = ["csv_referrer", "csv_referrer_email", "csv_invited", "csv_invited_email", "csv_status", "csv_reward", "csv_date"].map((key) => t(`referrals.${key}`));
+    const headers = ["csv_referrer", "csv_referrer_email", "csv_invited", "csv_invited_email", "csv_status", "csv_reward", "csv_friend_reward", "csv_date"].map((key) => t(`referrals.${key}`));
     const rows = referrals.map((r) => [
       r.referrer ? `${r.referrer.firstName} ${r.referrer.lastName}` : "",
       r.referrer?.email || "",
@@ -85,6 +87,7 @@ const Referrals = () => {
       r.referredUser?.email || r.referredEmail || "",
       r.status,
       r.rewardAmount?.toString() || "",
+      r.friendRewardAmount?.toString() || "",
       new Date(r.createdAt).toLocaleDateString(getLocale()),
     ]);
     const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n");
@@ -146,10 +149,17 @@ const Referrals = () => {
       title: t("referrals.reward"),
       key: "reward",
       render: (_, record) => (
-        <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
-          <FiDollarSign className="h-3.5 w-3.5 text-amber-500" />
-          {formatMoney(record.rewardAmount)}
-        </span>
+        <div>
+          <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
+            <FiDollarSign className="h-3.5 w-3.5 text-amber-500" />
+            {formatMoney(record.rewardAmount)}
+          </span>
+          {record.friendRewardAmount != null && (
+            <p className="text-xs text-slate-400">
+              {t("referrals.friend_reward_short", { amount: formatMoney(record.friendRewardAmount) })}
+            </p>
+          )}
+        </div>
       ),
     },
     {
@@ -178,7 +188,8 @@ const Referrals = () => {
           onClick: () => {
             if (tr.value === "rewarded") {
               setSelectedReferral(record);
-              setRewardAmount(defaultReward);
+              setRewardAmount(rewardDefaults.referrerAmount);
+              setFriendRewardAmount(rewardDefaults.friendAmount);
               setRewardModalOpen(true);
             } else if (tr.value === "expired") {
               sweetAlertConfirmation({
@@ -238,7 +249,10 @@ const Referrals = () => {
             { title: t("referrals.rewarded"), value: String(stats?.rewarded || 0), icon: <FiUsers className="h-4 w-4" /> },
             {
               title: t("referrals.total_paid"),
-              value: formatMoney(stats?.totalRewardsPaid, { fallback: "€ 0.00" }),
+              // Both halves of each referral: the referrer's and the friend's.
+              value: formatMoney((stats?.totalRewardsPaid || 0) + (stats?.totalFriendRewardsPaid || 0), {
+                fallback: "€ 0.00",
+              }),
               icon: <FiDollarSign className="h-4 w-4" />,
             },
           ].map((item) => (
@@ -259,22 +273,17 @@ const Referrals = () => {
           <FiSettings className="h-4 w-4" />
           {t("referrals.reward_configuration")}
         </div>
-        <div>
-          <p className="mb-1 text-sm text-slate-500">{t("referrals.amazon_voucher_amount")}</p>
-          <div className="flex items-center gap-2">
-            <InputNumber
-              min={1}
-              max={1000}
-              precision={2}
-              value={defaultReward}
-              onChange={(v) => v && setDefaultReward(v)}
-              className="rounded-lg"
-              size="large"
-            />
-            <span className="text-sm text-slate-400">{t("referrals.eur_per_activation")}</span>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <p className="mb-1 text-sm text-slate-500">{t("referrals.referrer_reward_label")}</p>
+            <p className="text-2xl font-semibold text-slate-700">{formatMoney(rewardDefaults.referrerAmount)}</p>
           </div>
-          <p className="mt-2 text-xs text-slate-400">{t("referrals.reward_prefill_hint")}</p>
+          <div>
+            <p className="mb-1 text-sm text-slate-500">{t("referrals.friend_reward_label")}</p>
+            <p className="text-2xl font-semibold text-slate-700">{formatMoney(rewardDefaults.friendAmount)}</p>
+          </div>
         </div>
+        <p className="mt-2 text-xs text-slate-400">{t("referrals.reward_config_hint")}</p>
       </Card>
 
       {/* Referrals Table */}
@@ -354,6 +363,7 @@ const Referrals = () => {
               id: selectedReferral.id,
               status: "rewarded",
               rewardAmount: rewardAmount,
+              ...(selectedReferral.referredUserId && { friendRewardAmount }),
             }).unwrap();
             message.success(t("referrals.marked_as_paid"));
             setRewardModalOpen(false);
@@ -368,17 +378,35 @@ const Referrals = () => {
         }}
         centered
       >
-        <div className="py-4">
-          <p className="mb-2 text-sm text-slate-500">{t("referrals.reward_amount_label")}</p>
-          <InputNumber
-            min={1}
-            max={1000}
-            precision={2}
-            value={rewardAmount}
-            onChange={(v) => v && setRewardAmount(v)}
-            className="w-full rounded-lg"
-            size="large"
-          />
+        <div className="space-y-4 py-4">
+          <div>
+            <p className="mb-2 text-sm text-slate-500">{t("referrals.referrer_reward_label")}</p>
+            <InputNumber
+              min={0}
+              max={1000}
+              precision={2}
+              value={rewardAmount}
+              onChange={(v) => v != null && setRewardAmount(v)}
+              className="w-full rounded-lg"
+              size="large"
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-sm text-slate-500">{t("referrals.friend_reward_label")}</p>
+            {selectedReferral?.referredUserId ? (
+              <InputNumber
+                min={0}
+                max={1000}
+                precision={2}
+                value={friendRewardAmount}
+                onChange={(v) => v != null && setFriendRewardAmount(v)}
+                className="w-full rounded-lg"
+                size="large"
+              />
+            ) : (
+              <p className="text-sm text-slate-400">{t("referrals.friend_reward_none")}</p>
+            )}
+          </div>
         </div>
       </Modal>
     </div>

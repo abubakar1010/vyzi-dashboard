@@ -9,6 +9,8 @@ export interface IReferral {
   referredUserId: string | null;
   status: "pending" | "registered" | "qualified" | "rewarded" | "expired";
   rewardAmount: number | null;
+  /** The invited friend's reward, recorded with the referrer's when paid. */
+  friendRewardAmount: number | null;
   rewardCreditedAt: string | null;
   expiresAt: string | null;
   createdAt: string;
@@ -25,6 +27,9 @@ export interface IReferralStats {
   rewarded: number;
   expired: number;
   totalRewardsPaid: number;
+  totalFriendRewardsPaid: number;
+  /** Configured on the server (REFERRAL_REFERRER_REWARD / REFERRAL_FRIEND_REWARD). */
+  rewardDefaults: { referrerAmount: number; friendAmount: number };
 }
 
 export interface IReferralQuery {
@@ -75,7 +80,7 @@ const referralApi = baseApi.injectEndpoints({
 
     updateReferralStatus: builder.mutation<
       IReferral,
-      { id: string; status: string; rewardAmount?: number }
+      { id: string; status: string; rewardAmount?: number; friendRewardAmount?: number }
     >({
       query: ({ id, ...body }) => ({
         url: `referrals/${id}/status`,
