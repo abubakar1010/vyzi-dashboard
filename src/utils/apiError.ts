@@ -133,8 +133,6 @@ const rules: Rule[] = [
   { match: "An activation request for this supply is already open", key: "activation_request_exists" },
   { match: "An active supply cannot be activated; request a transfer instead", key: "active_supply_not_activatable" },
   { match: "Assign an offer before sending the contract", key: "activation_request_contract_needs_offer" },
-  { match: "Only an activation request can be terminated", key: "only_activation_request_terminated" },
-  { match: "Only an active supply can be terminated", key: "only_active_supply_terminated" },
   { match: "A case cannot move between a switch and an activation request", key: "case_kind_fixed" },
   { match: "Tax ID is not valid", key: "tax_id_invalid" },
   { match: "Email is not valid", key: "email_invalid" },

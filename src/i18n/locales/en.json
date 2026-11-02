@@ -497,8 +497,7 @@
       "new": "To call",
       "in_progress": "In progress",
       "documents_pending": "Documents to receive",
-      "rejected": "Rejected (KO)",
-      "terminated": "Terminated"
+      "rejected": "Rejected (KO)"
     },
     "detail": {
       "case_status": "CASE STATUS", "status": "Status", "status_help": "Pick any status — forward or backward. The customer is notified of every change.", "case_number": "Case {{number}}", "amount_label": "Amount: ", "uploaded_on": "Uploaded {{date}}", "uploaded_documents": "Uploaded documents",
@@ -1184,7 +1183,6 @@
       "in_progress": "In progress",
       "documents_pending": "Documents to receive",
       "contract_sent": "Contract sent",
-      "terminated": "Terminated",
       "awaiting_activation": "In activation",
       "activated": "Activated",
       "cancelled": "Cancelled",

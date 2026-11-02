@@ -123,7 +123,6 @@ const statusTagColor: Record<string, string> = {
   in_progress: "blue",
   documents_pending: "orange",
   rejected: "red",
-  terminated: "default",
 };
 
 /* ── Status dropdown configuration ───────────────────────── */
@@ -262,11 +261,8 @@ function CaseStatusSelect({
   const buildOption = (status: string) => ({
     value: status,
     label: localizedStatus(status),
-    // The case is already here — nothing to change. Only a supply that ran can
-    // end; a request that never did is cancelled instead.
-    disabled:
-      status === currentStatus ||
-      (status === "terminated" && currentStatus !== "activated"),
+    // The case is already here — nothing to change.
+    disabled: status === currentStatus,
   });
 
   const options = [
