@@ -640,8 +640,6 @@
     "rewarded": "Premiati",
     "total_paid": "Totale pagato",
     "reward_configuration": "Configurazione premi",
-    "amazon_voucher_amount": "Importo buono Amazon",
-    "eur_per_activation": "EUR per attivazione completata",
     "all_referrals": "Tutti i referral",
     "referrer": "REFERENTE",
     "invited": "INVITATO",
@@ -653,11 +651,10 @@
     "confirm_expire_title": "Scadenza referral",
     "confirm_expire_text": "far scadere questo referral",
     "set_reward_amount": "Imposta importo premio",
-    "reward_amount_label": "Importo premio (EUR)",
     "confirm_payment_btn": "Conferma pagamento",
     "status_updated": "Stato aggiornato",
     "failed_to_update": "Aggiornamento fallito",
-    "default_reward_updated": "Premio predefinito aggiornato", "code": "CODICE", "date": "DATA", "pending": "In attesa", "registered": "Registrato", "expired": "Scaduto", "mark_registered": "Segna come registrato", "mark_qualified": "Segna come qualificato", "mark_paid": "Segna come pagato", "expire": "Fai scadere", "confirm": "Conferma", "statistics_load_failed": "Impossibile caricare le statistiche dei referral. Aggiorna la pagina e riprova.", "reward_prefill_hint": "Precompila l'importo del premio nella finestra di pagamento per questa sessione.", "tracking_description": "Monitora inviti referral e premi", "no_referrals": "Nessun referral ancora", "csv_referrer": "Referente", "csv_referrer_email": "Email referente", "csv_invited": "Invitato", "csv_invited_email": "Email invitato", "csv_status": "Stato", "csv_reward": "Premio (EUR)", "csv_date": "Data"
+    "code": "CODICE", "date": "DATA", "pending": "In attesa", "registered": "Registrato", "expired": "Scaduto", "mark_registered": "Segna come registrato", "mark_qualified": "Segna come qualificato", "mark_paid": "Segna come pagato", "expire": "Fai scadere", "confirm": "Conferma", "statistics_load_failed": "Impossibile caricare le statistiche dei referral. Aggiorna la pagina e riprova.", "tracking_description": "Monitora inviti referral e premi", "no_referrals": "Nessun referral ancora", "csv_referrer": "Referente", "csv_referrer_email": "Email referente", "csv_invited": "Invitato", "csv_invited_email": "Email invitato", "csv_status": "Stato", "csv_reward": "Premio (EUR)", "csv_date": "Data", "referrer_reward_label": "Premio referente (EUR)", "friend_reward_label": "Premio amico invitato (EUR)", "friend_reward_none": "L'amico invitato ha eliminato il suo account: nessun premio da pagare.", "friend_reward_short": "Amico: {{amount}}", "reward_config_hint": "Importi promessi nell'app e precompilati al pagamento. Si impostano sul server (REFERRAL_REFERRER_REWARD, REFERRAL_FRIEND_REWARD).", "csv_friend_reward": "Premio amico (EUR)"
   },
   "support_ticket": {
     "title": "Ticket di supporto",

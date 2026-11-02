@@ -640,8 +640,6 @@
     "rewarded": "Rewarded",
     "total_paid": "Total Paid",
     "reward_configuration": "Reward Configuration",
-    "amazon_voucher_amount": "Amazon Voucher Amount",
-    "eur_per_activation": "EUR per completed activation",
     "all_referrals": "All Referrals",
     "referrer": "REFERRER",
     "invited": "INVITED",
@@ -653,11 +651,10 @@
     "confirm_expire_title": "Expire Referral",
     "confirm_expire_text": "expire this referral",
     "set_reward_amount": "Set Reward Amount",
-    "reward_amount_label": "Reward amount (EUR)",
     "confirm_payment_btn": "Confirm Payment",
     "status_updated": "Status updated",
     "failed_to_update": "Failed to update",
-    "default_reward_updated": "Default reward updated", "code": "CODE", "date": "DATE", "pending": "Pending", "registered": "Registered", "expired": "Expired", "mark_registered": "Mark registered", "mark_qualified": "Mark qualified", "mark_paid": "Mark as paid", "expire": "Expire", "confirm": "Confirm", "statistics_load_failed": "Failed to load referral statistics. Please refresh the page.", "reward_prefill_hint": "Pre-fills the reward amount in the payment modal for this session.", "tracking_description": "Track referral invitations and rewards", "no_referrals": "No referrals yet", "csv_referrer": "Referrer", "csv_referrer_email": "Referrer email", "csv_invited": "Invited", "csv_invited_email": "Invited email", "csv_status": "Status", "csv_reward": "Reward (EUR)", "csv_date": "Date"
+    "code": "CODE", "date": "DATE", "pending": "Pending", "registered": "Registered", "expired": "Expired", "mark_registered": "Mark registered", "mark_qualified": "Mark qualified", "mark_paid": "Mark as paid", "expire": "Expire", "confirm": "Confirm", "statistics_load_failed": "Failed to load referral statistics. Please refresh the page.", "tracking_description": "Track referral invitations and rewards", "no_referrals": "No referrals yet", "csv_referrer": "Referrer", "csv_referrer_email": "Referrer email", "csv_invited": "Invited", "csv_invited_email": "Invited email", "csv_status": "Status", "csv_reward": "Reward (EUR)", "csv_date": "Date", "referrer_reward_label": "Referrer reward (EUR)", "friend_reward_label": "Invited friend reward (EUR)", "friend_reward_none": "The invited friend deleted their account: no reward to pay.", "friend_reward_short": "Friend: {{amount}}", "reward_config_hint": "Amounts promised in the app and pre-filled when paying. Set on the server (REFERRAL_REFERRER_REWARD, REFERRAL_FRIEND_REWARD).", "csv_friend_reward": "Friend reward (EUR)"
   },
   "support_ticket": {
     "title": "Support Ticket",
